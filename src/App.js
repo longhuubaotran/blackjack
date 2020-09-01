@@ -3,6 +3,10 @@ import Deck from "./Deck/deck.js";
 import Card from "./components/Card";
 import "./App.css";
 
+const deck = new Deck();
+deck.createDeck();
+deck.shuffle();
+
 function App() {
   let count = 1; // use this to render one of dealer's cards with back side
 
@@ -12,11 +16,12 @@ function App() {
   const [startGame, setStartGame] = useState(false);
   const [stay, setStay] = useState(false);
 
-  const deck = new Deck();
-  deck.createDeck();
-  deck.shuffle();
-
   const cards = deck.getCards();
+
+  let playerPoints = calCardValues(playerCards);
+  let dealerPoints = calCardValues(dealerCards);
+
+  console.log(dealerPoints);
 
   const handleStart = () => {
     setPlayerCards([...playerCards, cards.pop(), cards.pop()]);
@@ -26,10 +31,18 @@ function App() {
   };
 
   const handleStay = () => {
+    // if (dealerPoints < 17) {
+    //   setDealerCards([...dealerCards, cards.pop()]);
+    // }
     setStay(true);
+    // comparePoints(dealerPoints, playerPoints);
   };
 
   const handleHit = () => {
+    if (playerCards.length >= 5) {
+      alert("You should stay");
+      return;
+    }
     setPlayerCards([...playerCards, cards.pop()]);
   };
 
@@ -67,6 +80,44 @@ function App() {
       </div>
     </div>
   );
+}
+
+function calCardValues(cardsArr) {
+  const cardsLetter = ["J", "Q", "K"];
+  let total = 0;
+
+  cardsArr.forEach((card) => {
+    if (cardsLetter.indexOf(card.value) !== -1) {
+      total += 10;
+    } else {
+      if (card.value === "A") {
+        if (total <= 10) {
+          total += 11;
+        } else {
+          total += 1;
+        }
+      } else {
+        total += parseInt(card.value);
+      }
+    }
+  });
+
+  return total;
+}
+
+function comparePoints(dealerPoints, playerPoints) {
+  if (dealerPoints === playerPoints) {
+    alert("Draw");
+    return;
+  }
+  if (dealerPoints > playerPoints && dealerPoints <= 21) {
+    alert("Dealer Win");
+    return;
+  }
+  if (dealerPoints < playerPoints && playerPoints <= 21) {
+    alert("Player Win");
+    return;
+  }
 }
 
 export default App;
