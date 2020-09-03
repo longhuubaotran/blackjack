@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Deck from "./Deck/deck.js";
 import Card from "./components/Card";
 import "./App.css";
@@ -9,9 +9,11 @@ deck.shuffle();
 
 function App() {
   let count = 1; // use this to render one of dealer's cards with back side
-
+  console.log("render");
   const [playerCards, setPlayerCards] = useState([]);
   const [dealerCards, setDealerCards] = useState([]);
+  const [renderDone, setRenderDone] = useState(false);
+  const [result, setResult] = useState("");
 
   const [startGame, setStartGame] = useState(false);
   const [stay, setStay] = useState(false);
@@ -21,7 +23,12 @@ function App() {
   let playerPoints = calCardValues(playerCards);
   let dealerPoints = calCardValues(dealerCards);
 
-  console.log(dealerPoints);
+  useEffect(() => {
+    if (renderDone) {
+      let tempResult = comparePoints(dealerPoints, playerPoints);
+      setResult(tempResult);
+    }
+  }, [renderDone]);
 
   const handleStart = () => {
     setPlayerCards([...playerCards, cards.pop(), cards.pop()]);
@@ -31,11 +38,14 @@ function App() {
   };
 
   const handleStay = () => {
-    // if (dealerPoints < 17) {
-    //   setDealerCards([...dealerCards, cards.pop()]);
-    // }
+    if (dealerPoints < 17) {
+      const tempDealerCards = canDealerDraw(dealerPoints, cards);
+      if (tempDealerCards.length !== 0) {
+        setDealerCards([...dealerCards, ...tempDealerCards]);
+      }
+    }
     setStay(true);
-    // comparePoints(dealerPoints, playerPoints);
+    setRenderDone(true);
   };
 
   const handleHit = () => {
@@ -48,6 +58,7 @@ function App() {
 
   return (
     <div className='App'>
+      {result !== "" && <h1 className='result'>{result}</h1>}
       <div className='dealer'>
         <div className='cards'>
           {dealerCards.map((card) => (
@@ -106,18 +117,49 @@ function calCardValues(cardsArr) {
 }
 
 function comparePoints(dealerPoints, playerPoints) {
-  if (dealerPoints === playerPoints) {
-    alert("Draw");
-    return;
+  if (
+    dealerPoints === playerPoints ||
+    (dealerPoints > 21 && playerPoints > 21)
+  ) {
+    return "Draw";
   }
-  if (dealerPoints > playerPoints && dealerPoints <= 21) {
-    alert("Dealer Win");
-    return;
+  if (dealerPoints > 21) {
+    return "Player Win";
   }
-  if (dealerPoints < playerPoints && playerPoints <= 21) {
-    alert("Player Win");
-    return;
+  if (playerPoints > 21) {
+    return "Dealer Win";
   }
+  if (playerPoints < dealerPoints) {
+    return "Dealer Win";
+  }
+  if (playerPoints > dealerPoints) {
+    return "Player Win";
+  }
+}
+
+function canDealerDraw(dealerPoints, cards) {
+  let tempPoints = dealerPoints;
+  let tempCards = [];
+  const cardsLetter = ["J", "Q", "K"];
+  while (tempPoints < 17) {
+    let card = cards.pop();
+    if (cardsLetter.indexOf(card.value) !== -1) {
+      tempPoints += 10;
+    } else {
+      if (card.value === "A") {
+        if (tempPoints <= 10) {
+          tempPoints += 11;
+        } else {
+          tempPoints += 1;
+        }
+      } else {
+        tempPoints += parseInt(card.value);
+      }
+    }
+    console.log(tempPoints, "temp points");
+    tempCards.push(card);
+  }
+  return tempCards;
 }
 
 export default App;
