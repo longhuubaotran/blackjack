@@ -134,3 +134,43 @@ body {
   border-radius: 5px;
   font-size: 15px;
 }
+
+@media only screen and (min-device-width: 375px) and (max-device-height: 667px) and (orientation: landscape) and (-webkit-device-pixel-ratio: 2) {
+  .card,
+  .card-back-side {
+    width: 100px;
+    height: 150px;
+    margin: 50px 10px;
+  }
+
+  .card::before,
+  .card::after {
+    font-size: 20px;
+    line-height: 15px;
+  }
+}
+
+@media only screen and (min-device-width: 375px) and (max-device-height: 812px) and (orientation: landscape) and (-webkit-device-pixel-ratio: 3) {
+  .card,
+  .card-back-side {
+    width: 100px;
+    height: 150px;
+    margin: 50px 10px;
+  }
+
+  .card::before,
+  .card::after {
+    font-size: 20px;
+    line-height: 15px;
+  }
+
+  .card::before {
+    top: 10px;
+    left: 5px;
+  }
+
+  .card::after {
+    bottom: 10px;
+    right: 5px;
+  }
+}
